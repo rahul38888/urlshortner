@@ -13,11 +13,13 @@
 		http://www.springframework.org/schema/util/spring-util.xsd">
 
     <ctx:component-scan
-            base-package="com.til.cms.graph.controller, com.til.cms.graph.profile" />
+            base-package="edu.bendu.controllers" />
 
     <!--to Enable aspectj load time weaving "on" and to disable "off"-->
     <ctx:load-time-weaver aspectj-weaving="off"/>
 
     <mvc:annotation-driven />
+
+
 
 </beans>
