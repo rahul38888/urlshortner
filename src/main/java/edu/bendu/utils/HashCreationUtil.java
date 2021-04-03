@@ -1,5 +1,6 @@
 package edu.bendu.utils;
 
+import edu.bendu.constants.AppConstants;
 import edu.bendu.pojo.ShortUrlObject;
 
 import java.io.UnsupportedEncodingException;
@@ -10,11 +11,6 @@ import java.util.Random;
 
 public class HashCreationUtil {
 
-	private static final char[] keyCharList =
-			"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
-
-	private static final int defaultkeySize = 6;
-
 	public static ShortUrlObject toShortUrl(String url)
 			throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		ShortUrlObject shortUrl =  new ShortUrlObject();
@@ -23,9 +19,22 @@ public class HashCreationUtil {
 		byte[] urlMd5Hash = md5Hash(url);
 		shortUrl.setMd5Hash(convertToHex(urlMd5Hash));
 
-		shortUrl.setShortUrlKey(randomKeyGen(defaultkeySize));
+		String randomKey = randomKeyGen(AppConstants.DEFAULT_KEY_SIZE);
+		shortUrl.setShortUrlKey(randomKey);
+		shortUrl.setShortUrl(urlCreator(AppConstants.HOST, AppConstants.SHORT_URL_PATH, randomKey));
 
 		return shortUrl;
+	}
+
+	private static String urlCreator(String ... urlComponents){
+		StringBuilder url = new StringBuilder();
+		for (String urlComponent : urlComponents) {
+			url.append("/");
+			url.append(urlComponent);
+		}
+
+		url.delete(0,1);
+		return url.toString();
 	}
 
 	private static byte[] md5Hash(String input) throws NoSuchAlgorithmException {
@@ -57,7 +66,7 @@ public class HashCreationUtil {
 		Random randomGen = new Random();
 
 		for(int i=0;i<keyLength;i++)
-			keyBuffer.append(keyCharList[randomGen.nextInt()]);
+			keyBuffer.append(AppConstants.KEY_CHAR_LIST[randomGen.nextInt(AppConstants.KEY_CHAR_LIST.length)]);
 
 		return keyBuffer.toString();
 	}

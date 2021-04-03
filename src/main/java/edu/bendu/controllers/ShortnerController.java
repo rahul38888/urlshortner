@@ -2,6 +2,8 @@ package edu.bendu.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.bendu.constants.AppConstants;
+import edu.bendu.exceptions.InvalidUrlException;
 import edu.bendu.pojo.ShortUrlObject;
 import edu.bendu.utils.HashCreationUtil;
 import org.springframework.stereotype.Controller;
@@ -11,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 
 @RestController
@@ -22,20 +24,29 @@ public class ShortnerController {
 
 	private final ObjectMapper mapper = new ObjectMapper();
 
-	@RequestMapping(value = "short", produces="application/json; charset=utf-8")
-	public String getShortenedUrl(@RequestParam("url") String url) throws JsonProcessingException {
+	@RequestMapping(value = "/short", produces="application/json; charset=utf-8")
+	public String getShortenedUrl(@RequestParam("url") String url)
+			throws JsonProcessingException, MalformedURLException, InvalidUrlException,
+			UnsupportedEncodingException, NoSuchAlgorithmException {
+		if(!StringUtils.isEmpty(url))
+			throw new InvalidUrlException("Url parameter blank");
+		url = validateUrl(url);
 
+		ShortUrlObject shortUrl = HashCreationUtil.toShortUrl(url);
+
+		return mapper.writeValueAsString(shortUrl) ;
+	}
+
+	private String validateUrl(String url) throws MalformedURLException, InvalidUrlException {
 		if(!StringUtils.isEmpty(url) && !url.contains("http"))
 			url = "http://" + url;
 
-		ShortUrlObject shortUrl = null;
-		try {
-			shortUrl = HashCreationUtil.toShortUrl(url);
+		URL urlObject = new URL(url);
+		if(AppConstants.HOST.equals(urlObject.getAuthority()) &&
+				urlObject.getPath().indexOf(AppConstants.SHORT_URL_PATH)==0)
+			throw new InvalidUrlException("Url is already shortened");
 
-			return mapper.writeValueAsString(shortUrl) ;
-		} catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-			return mapper.writeValueAsString(e);
-		}
+		return url;
 	}
 
 	public static void main(String[] args) throws UnsupportedEncodingException, NoSuchAlgorithmException {

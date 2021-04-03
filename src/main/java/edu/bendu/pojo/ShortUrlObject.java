@@ -47,18 +47,16 @@ public class ShortUrlObject implements Serializable {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		ShortUrlObject shortUrl1 = (ShortUrlObject) o;
+		ShortUrlObject that = (ShortUrlObject) o;
 
-		if (!shortUrl.equals(shortUrl1.shortUrl)) return false;
-		if (!url.equals(shortUrl1.url)) return false;
-		return Objects.equals(shortUrlKey, shortUrl1.shortUrlKey);
+		if (!shortUrlKey.equals(that.shortUrlKey)) return false;
+		return md5Hash.equals(that.md5Hash);
 	}
 
 	@Override
 	public int hashCode() {
-		int result = shortUrl.hashCode();
-		result = 31 * result + url.hashCode();
-		result = 31 * result + (shortUrlKey != null ? shortUrlKey.hashCode() : 0);
+		int result = shortUrlKey.hashCode();
+		result = 31 * result + md5Hash.hashCode();
 		return result;
 	}
 
@@ -68,6 +66,7 @@ public class ShortUrlObject implements Serializable {
 				"shortUrl='" + shortUrl + '\'' +
 				", url='" + url + '\'' +
 				", shortUrlKey='" + shortUrlKey + '\'' +
+				", md5Hash='" + md5Hash + '\'' +
 				'}';
 	}
 }
